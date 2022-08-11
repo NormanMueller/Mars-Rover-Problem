@@ -2,12 +2,12 @@ from enum import Enum, auto
 from typing import Dict, Set, List, Tuple
 from abc import ABC, abstractclassmethod
 
+
 class Direction(str, Enum):
     N = "NORTH"
     S = "SOUTH"
     W = "WEST"
     E = "EAST"
-
 
 
 # interface  make it easy to implement another Roboter Type
@@ -66,23 +66,23 @@ class MarsRoboter(Roboter):
     def turn_right(self) -> None:
         if self.direction == Direction.N:
             self.direction = Direction.E
-        elif self.direction == Direction.W:
-            self.direction = Direction.N
-        elif self.direction == Direction.S:
-            self.direction = Direction.W
         elif self.direction == Direction.E:
             self.direction = Direction.S
+        elif self.direction == Direction.S:
+            self.direction = Direction.W
+        elif self.direction == Direction.W:
+            self.direction = Direction.N
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
-        if self.direction == Direction.E:
-            self.position[0] = self.position[0] + 1
-        if self.direction == Direction.W:
-            self.position[0] = self.position[0] - 1
         if self.direction == Direction.N:
             self.position[1] = self.position[1] + 1
-        if self.direction == Direction.S:
+        elif self.direction == Direction.E:
+            self.position[0] = self.position[0] + 1
+        elif self.direction == Direction.S:
             self.position[1] = self.position[1] - 1
+        elif self.direction == Direction.W:
+            self.position[0] = self.position[0] - 1
         pass
 
     def get_position(self):
@@ -91,6 +91,7 @@ class MarsRoboter(Roboter):
 
 class FactoryProcess:
     """Process instructions for your mars mission"""
+
     def __init__(self, mars_roboters: List[MarsRoboter], instructions: List[str]):
         self.mars_roboters = mars_roboters
         self.instructions = instructions
@@ -115,7 +116,7 @@ class FactoryProcess:
                 self.execute_instructions(mars_roboter, instruction)
             )
         self.processed_mars_roboter = processed_roboter
-   
+
         # return final position for every mars roboter
         for mars_roboter in self.processed_mars_roboter:
             mars_roboter.get_position()
