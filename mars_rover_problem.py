@@ -9,6 +9,7 @@ class Direction(str, Enum):
     E = "EAST"
 
 
+
 # interface  make it easy to implement another Roboter Type
 class Roboter(ABC):
     @abstractclassmethod
@@ -85,8 +86,7 @@ class MarsRoboter(Roboter):
         pass
 
     def get_position(self):
-        output = self.position + self.direction 
-        print(f"{output}")
+        print(f"Position: {self.position}, Direction: {self.direction}")
 
 
 class FactoryProcess:
