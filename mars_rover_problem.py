@@ -3,9 +3,9 @@ from typing import Dict, Set, List, Tuple
 from abc import ABC, abstractclassmethod
 
 
-class Direction(str, Enum):
-    N = "NORTH"
+class Direction(Enum):
     S = "SOUTH"
+    N = "NORTH"
     W = "WEST"
     E = "EAST"
 
@@ -43,35 +43,50 @@ class CoordinateSystem:
 
         return coordinates
 
+### Dict to match direction and angle
+direction_angle = {
+        "Direction.N": [0, 360],
+        "Direction.E": [90],
+        "Direction.S": [180],
+        "Direction.W": [270],
+    }
+
+### Dict to match angle and direction
+angle_direction = {
+        "0": Direction.N,
+        "360": Direction.N,
+        "90": Direction.E,
+        "180": Direction.S,
+        "270": Direction.W,
+    }
 
 class MarsRoboter(Roboter):
     def __init__(
-        self, startpoint: List[any], coordinate_system: CoordinateSystem
+        self, startpoint: List[any], coordinate_system: CoordinateSystem, 
+        direction_angle:Dict[Direction, List],
+        angle_direction:Dict[str,Direction]
     ) -> None:
         super(Roboter, self).__init__()
         self.position: List[int, int] = startpoint[:2]
         self.direction: Direction = startpoint[2]
         self.coordinate_system: CoordinateSystem = coordinate_system
+        self.direction_angle =direction_angle
+        self.angle_direction = angle_direction
+    
+    def get_current_angle(self) -> int:
+        # match angle and direction
+        angle = self.direction_angle.get(str(self.direction)) 
+        return angle
 
     def turn_left(self) -> None:
-        if self.direction == Direction.N:
-            self.direction = Direction.W
-        elif self.direction == Direction.W:
-            self.direction = Direction.S
-        elif self.direction == Direction.S:
-            self.direction = Direction.E
-        elif self.direction == Direction.E:
-            self.direction = Direction.N
+        angle = self.get_current_angle()
+        new_angle = max(angle) -90 # In case of North max entry 360 / add 90 degree
+        self.direction = self.angle_direction.get(str(new_angle))
 
     def turn_right(self) -> None:
-        if self.direction == Direction.N:
-            self.direction = Direction.E
-        elif self.direction == Direction.E:
-            self.direction = Direction.S
-        elif self.direction == Direction.S:
-            self.direction = Direction.W
-        elif self.direction == Direction.W:
-            self.direction = Direction.N
+        angle = self.get_current_angle()
+        new_angle = min(angle) +90 # In case of North min entry 0 / add -90 degree
+        self.direction = self.angle_direction.get(str(new_angle))
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
@@ -130,12 +145,16 @@ if __name__ == "__main__":
     #### Roboter 1
     instruction_1 = "LMLMLMLMM"
     mars_roboter_instance_1 = MarsRoboter(
-        startpoint=[1, 2, Direction.N], coordinate_system=coordinate_system
+        startpoint=[1, 2, Direction.N], coordinate_system=coordinate_system,
+        direction_angle =direction_angle,
+        angle_direction = angle_direction
     )
 
     #### Roboter 2
     mars_roboter_instance_2 = MarsRoboter(
-        startpoint=[3, 3, Direction.E], coordinate_system=coordinate_system
+        startpoint=[3, 3, Direction.E], coordinate_system=coordinate_system,
+        direction_angle=direction_angle,
+        angle_direction=angle_direction
     )
     instruction_2 = "MMRMMRMRRM"
 
