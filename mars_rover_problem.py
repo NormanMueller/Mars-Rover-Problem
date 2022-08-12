@@ -44,12 +44,13 @@ class CoordinateSystem:
         return coordinates
 
 
-### Dict to match direction and angle
+### Dict to match direction and (angle, move)
+# move to north means y +=1 and x +=0 -> [0.1]
 direction_angle = {
-    "Direction.N": [0, 360],
-    "Direction.E": [90],
-    "Direction.S": [180],
-    "Direction.W": [270],
+    "Direction.N": ([0, 360], [0, 1]),
+    "Direction.E": ([90], [1, 0]),
+    "Direction.S": ([180], [0, -1]),
+    "Direction.W": ([270], [-1, 0]),
 }
 
 ### Dict to match angle and direction
@@ -75,12 +76,17 @@ class MarsRoboter(Roboter):
         self.direction: Direction = startpoint[2]
         self.coordinate_system: CoordinateSystem = coordinate_system
         self.direction_angle: Dict[Direction, List] = direction_angle
-        self.angle_direction: Dict[str, Direction] = angle_direction
+        self.angle_direction = angle_direction
 
-    def get_current_angle(self) -> int:
-        # match angle and direction
-        angle = self.direction_angle.get(str(self.direction))
+    def get_current_angle(self) -> List[int]:
+        # match direction and angle
+        angle = self.direction_angle.get(str(self.direction))[0]
         return angle
+
+    def get_current_move(self) -> List[int]:
+        # match direction and moveent
+        move = self.direction_angle.get(str(self.direction))[1]
+        return move
 
     def turn_left(self) -> None:
         angle = self.get_current_angle()
@@ -94,15 +100,9 @@ class MarsRoboter(Roboter):
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
-        if self.direction == Direction.N:
-            self.position[1] = self.position[1] + 1
-        elif self.direction == Direction.E:
-            self.position[0] = self.position[0] + 1
-        elif self.direction == Direction.S:
-            self.position[1] = self.position[1] - 1
-        elif self.direction == Direction.W:
-            self.position[0] = self.position[0] - 1
-        pass
+        move = self.get_current_move()
+        self.position[0] += move[0]
+        self.position[1] += move[1]
 
     def get_position(self):
         print(f"Position: {self.position}, Direction: {self.direction}")
