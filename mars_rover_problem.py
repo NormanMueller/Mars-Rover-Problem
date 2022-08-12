@@ -36,22 +36,22 @@ def set_coordinate_system(x_coordinate, y_coordinate) -> List[Tuple[int, int]]:
     return coordinates
 
 
-### Dict to match direction and (angle, move)
-# move to north means y +=1 and x +=0 -> [0.1]
-direction_angle_movement = {
-    "Direction.N": {"angle": [0, 360], "move": [0, 1]},
-    "Direction.E": {"angle": [90], "move": [1, 0]},
-    "Direction.S": {"angle": [180], "move": [0, -1]},
-    "Direction.W": {"angle": [270], "move": [-1, 0]},
+### Dict to match direction and angle
+direction_angle = {
+    "Direction.N": 360,
+    "Direction.E": 90,
+    "Direction.S": 180,
+    "Direction.W": 270,
 }
 
-### Dict to match angle and direction
-angle_direction = {
-    "0": Direction.N,
-    "360": Direction.N,
-    "90": Direction.E,
-    "180": Direction.S,
-    "270": Direction.W,
+### Dict to match angle and movement
+# move to north means y +=1 and x +=0 -> [0.1]
+angle_move = {
+    "360": [0, 1],
+    "0": [0, 1],
+    "90": [1, 0],
+    "180": [0, -1],
+    "270": [-1, 0],
 }
 
 
@@ -60,35 +60,38 @@ class MarsRoboter(Roboter):
         super(Roboter, self).__init__()
         self.position = startpoint[:2]
         self.direction = startpoint[2]
+        self.angle = self.get_angle()
         self.coordinate_system = coordinate_system
 
-    def get_current_angle(self) -> List[int]:
+    def get_angle(self) -> List[int]:
         # match direction and angle
-        angle = direction_angle_movement.get(str(self.direction)).get("angle")
+        angle = direction_angle.get(str(self.direction))
         return angle
 
     def turn_left(self) -> None:
-        angle = self.get_current_angle()
-        new_angle = max(angle) - 90  # In case of North max entry 360 / minus 90 degree
-        self.direction = angle_direction.get(str(new_angle))
+        new_angle = self.angle - 90  # In case of North max entry 360 / minus 90 degre
+        self.angle = 360 - 90 if new_angle < 0 else new_angle
 
     def turn_right(self) -> None:
-        angle = self.get_current_angle()
-        new_angle = min(angle) + 90  # In case of North min entry 0 / add90 degree
-        self.direction = angle_direction.get(str(new_angle))
+        new_angle = self.angle + 90  # In case of North min entry 0 / add90 degree
+        self.angle = 0 + 90 if new_angle > 360 else new_angle
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
-        move = direction_angle_movement.get(str(self.direction)).get("move")
+        move = angle_move.get(str(self.angle))
         self.position[0] += move[0]
         self.position[1] += move[1]
 
     def get_position(self):
-        print(f"Position: {self.position}, Direction: {self.direction}")
+        self.angle = (360 if self.angle == 0 else self.angle )  # 360  degree and 0 result in north
+        # map angle back to  direction
+        self.direction = [k for k, v in direction_angle.items() if v == self.angle]
+        print(f"Position: {self.position}, Direction: {self.direction[0]}, angle: {self.angle}")
 
 
 class FactoryProcess:
     """Process instructions for your mars mission"""
+
     def __init__(self, mars_roboters: List[MarsRoboter], instructions: List[str]):
         self.mars_roboters = mars_roboters
         self.instructions = instructions
