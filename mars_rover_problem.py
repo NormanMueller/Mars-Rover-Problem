@@ -28,20 +28,12 @@ class Roboter(ABC):
         pass
 
 
-class CoordinateSystem:
-    def __init__(self, x_coordinate: int, y_coordinate: int) -> None:
-        self.x_coordinate: int = x_coordinate
-        self.y_coordinate: int = y_coordinate
-        self.coordinate_system: Tuple[int, int] = self.set_coordinate_system()
-
-    def set_coordinate_system(self) -> None:
-        coordinates = []
-        for x in range(self.x_coordinate + 1):
-            for y in range(self.y_coordinate + 1):
-                coordinates.append((x, y))
-        print(f"coordinate_system wurde erstellt: {coordinates[-1]}")
-
-        return coordinates
+def set_coordinate_system(x_coordinate, y_coordinate) -> None:
+    coordinates = []
+    for x in range(x_coordinate + 1):
+        for y in range(y_coordinate + 1):
+            coordinates.append((x, y))
+    return coordinates
 
 
 ### Dict to match direction and (angle, move)
@@ -67,40 +59,31 @@ class MarsRoboter(Roboter):
     def __init__(
         self,
         startpoint: List[any],
-        coordinate_system: CoordinateSystem,
-        direction_angle: Dict[Direction, List],
-        angle_direction: Dict[str, Direction],
+        coordinate_system: List[Tuple]
     ) -> None:
         super(Roboter, self).__init__()
-        self.position: List[int, int] = startpoint[:2]
-        self.direction: Direction = startpoint[2]
-        self.coordinate_system: CoordinateSystem = coordinate_system
-        self.direction_angle: Dict[Direction, List] = direction_angle
-        self.angle_direction = angle_direction
+        self.position = startpoint[:2]
+        self.direction = startpoint[2]
+        self.coordinate_system  = coordinate_system
 
     def get_current_angle(self) -> List[int]:
         # match direction and angle
-        angle = self.direction_angle.get(str(self.direction))[0]
+        angle = direction_angle.get(str(self.direction))[0]
         return angle
-
-    def get_current_move(self) -> List[int]:
-        # match direction and moveent
-        move = self.direction_angle.get(str(self.direction))[1]
-        return move
 
     def turn_left(self) -> None:
         angle = self.get_current_angle()
         new_angle = max(angle) - 90  # In case of North max entry 360 / add 90 degree
-        self.direction = self.angle_direction.get(str(new_angle))
+        self.direction = angle_direction.get(str(new_angle))
 
     def turn_right(self) -> None:
         angle = self.get_current_angle()
         new_angle = min(angle) + 90  # In case of North min entry 0 / add -90 degree
-        self.direction = self.angle_direction.get(str(new_angle))
+        self.direction = angle_direction.get(str(new_angle))
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
-        move = self.get_current_move()
+        move = direction_angle.get(str(self.direction))[1]
         self.position[0] += move[0]
         self.position[1] += move[1]
 
@@ -110,7 +93,6 @@ class MarsRoboter(Roboter):
 
 class FactoryProcess:
     """Process instructions for your mars mission"""
-
     def __init__(self, mars_roboters: List[MarsRoboter], instructions: List[str]):
         self.mars_roboters = mars_roboters
         self.instructions = instructions
@@ -142,25 +124,20 @@ class FactoryProcess:
 
 
 if __name__ == "__main__":
-
     ### Coordinate System
-    coordinate_system = CoordinateSystem(x_coordinate=5, y_coordinate=5)
+    coordinate_system = set_coordinate_system(x_coordinate=5, y_coordinate=5)
 
     #### Roboter 1
     instruction_1 = "LMLMLMLMM"
     mars_roboter_instance_1 = MarsRoboter(
         startpoint=[1, 2, Direction.N],
-        coordinate_system=coordinate_system,
-        direction_angle=direction_angle,
-        angle_direction=angle_direction,
+        coordinate_system=coordinate_system
     )
 
     #### Roboter 2
     mars_roboter_instance_2 = MarsRoboter(
         startpoint=[3, 3, Direction.E],
-        coordinate_system=coordinate_system,
-        direction_angle=direction_angle,
-        angle_direction=angle_direction,
+        coordinate_system=coordinate_system
     )
     instruction_2 = "MMRMMRMRRM"
 
