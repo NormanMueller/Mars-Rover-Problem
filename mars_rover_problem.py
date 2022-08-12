@@ -38,7 +38,7 @@ def set_coordinate_system(x_coordinate, y_coordinate) -> None:
 
 ### Dict to match direction and (angle, move)
 # move to north means y +=1 and x +=0 -> [0.1]
-direction_angle = {
+direction_angle_movement = {
     "Direction.N": ([0, 360], [0, 1]),
     "Direction.E": ([90], [1, 0]),
     "Direction.S": ([180], [0, -1]),
@@ -68,7 +68,7 @@ class MarsRoboter(Roboter):
 
     def get_current_angle(self) -> List[int]:
         # match direction and angle
-        angle = direction_angle.get(str(self.direction))[0]
+        angle = direction_angle_movement.get(str(self.direction))[0]
         return angle
 
     def turn_left(self) -> None:
@@ -83,7 +83,7 @@ class MarsRoboter(Roboter):
 
     def move(self) -> None:
         """Move exactly 1 field in current direction"""
-        move = direction_angle.get(str(self.direction))[1]
+        move = direction_angle_movement.get(str(self.direction))[1]
         self.position[0] += move[0]
         self.position[1] += move[1]
 
