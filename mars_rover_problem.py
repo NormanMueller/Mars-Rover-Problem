@@ -28,7 +28,7 @@ class Roboter(ABC):
         pass
 
 
-def set_coordinate_system(x_coordinate, y_coordinate) -> None:
+def set_coordinate_system(x_coordinate, y_coordinate) -> List[Tuple[int,int]]:
     coordinates = []
     for x in range(x_coordinate + 1):
         for y in range(y_coordinate + 1):
